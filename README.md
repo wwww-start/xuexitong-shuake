@@ -22,6 +22,7 @@
 
 课程可能限制倍速或跳转进度。视频跳转或播放结束不代表平台任务点、学时已完成，请以平台记录为准。视频内弹题尚未专门处理。
 
+仅供学习使用，严禁商业，或者违规操作。否则后果自负。与本人无关
 ## 来源
 
 基于 [chaolucky18/xuexitongScript](https://github.com/chaolucky18/xuexitongScript) 中的 `v3_optimized.user.js` 修改，保留原作者信息。本仓库未另行声明新的软件许可证。
