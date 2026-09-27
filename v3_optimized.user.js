@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         学习通自动刷课脚本 V3 稳定版
 // @namespace    local.codex.xuexitong
-// @version      3.3.6
+// @version      3.3.8
 // @description  自动播放、自动切换下一节，并在页面结构异常时安全停止
 // @author       Codex
 // @match        *://mooc1.chaoxing.com/mycourse/studentstudy*
@@ -33,45 +33,50 @@
         const root = host.attachShadow({mode: 'open'});
         const style = document.createElement('style');
         style.textContent = `
-            :host{color-scheme:light dark;--text:#202124;--muted:#626873;--glass:rgba(248,249,252,.91);--card:rgba(255,255,255,.68);--line:rgba(30,40,65,.10);--blue:#007aff;--green:#168447;--amber:#996200;--red:#cf3232;font:13px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
-            *{box-sizing:border-box}
-            section{width:340px;max-width:calc(100vw - 36px);background:var(--glass);backdrop-filter:blur(24px) saturate(160%);-webkit-backdrop-filter:blur(24px) saturate(160%);border:1px solid var(--line);border-radius:20px;box-shadow:0 18px 60px rgba(25,35,55,.20),0 2px 8px rgba(25,35,55,.08),inset 0 1px 0 rgba(255,255,255,.65)}
-            header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line);cursor:move;touch-action:none;user-select:none}
-            header strong{font-size:13px;font-weight:600;letter-spacing:-.2px}
-            header strong::before{content:'▶';display:inline-grid;place-items:center;width:26px;height:26px;margin-right:9px;border-radius:8px;background:linear-gradient(145deg,#54b4ff,#007aff);color:white;font-size:11px;box-shadow:0 2px 6px #007aff25}
-            button,select,input{font:inherit}
-            button{border:0;cursor:pointer;border-radius:10px;padding:7px 11px;transition:background .16s,transform .16s;color:var(--text);background:var(--card)}
-            header button{font-size:12px;color:var(--muted);background:transparent}
-            button:hover{filter:brightness(.96)}button:active{transform:scale(.98)}
-            button:disabled,select:disabled{opacity:.45;cursor:default}
-            button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #007aff60;outline-offset:3px}
-            main{padding:16px 18px}
-            p{margin:5px 0;overflow-wrap:anywhere}
-            .status-card{border:1px solid var(--line);border-radius:14px;background:var(--card);padding:13px 14px;margin:13px 0 15px}
-            .state{font-weight:600;font-size:14px;letter-spacing:-.2px}
-            .detail{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.65}
-            .meta{color:var(--muted);font-size:11px;line-height:1.6}
-            .switch-row,.speed-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:36px;font-weight:500}
-            .switch-row{flex-direction:row-reverse;cursor:pointer}
-            .master-row{font-size:14px}
-            input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:38px;height:23px;border-radius:20px;border:0;margin:0;background:#b8bec8;position:relative;cursor:pointer;transition:background .18s}
-            input[type=checkbox]::after{content:'';position:absolute;width:19px;height:19px;top:2px;left:2px;border-radius:50%;background:white;box-shadow:0 1px 4px #0003;transition:transform .18s}
-            input[type=checkbox]:checked{background:#34c759}input[type=checkbox]:checked::after{transform:translateX(15px)}
-            select{border:1px solid var(--line);border-radius:9px;padding:6px 9px;background:var(--card);color:var(--text);cursor:pointer}
-            .seek-row{display:flex;flex-wrap:wrap;align-items:center;gap:12px;margin-top:12px;padding:13px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
-            .seek-row>button{color:white;background:var(--blue);padding:9px 13px;flex:1;white-space:nowrap;box-shadow:0 2px 5px #007aff20}
-            .seek-row>label{flex:1;min-width:125px;font-size:12px;gap:8px}
-            .footer{margin-top:13px}.timestamp{font-size:10px;opacity:.85}
-            [hidden]{display:none}
-            @media(prefers-color-scheme:dark){:host{--text:#f1f2f6;--muted:#aeb4c0;--glass:rgba(35,38,46,.92);--card:rgba(255,255,255,.065);--line:rgba(255,255,255,.11);--blue:#0a84ff;--green:#6cdd97;--amber:#ffcd67;--red:#ff8a84}section{box-shadow:0 18px 60px #0006,inset 0 1px 0 #ffffff15}input[type=checkbox]{background:#626976}}
-            @media(prefers-reduced-motion:reduce){button,input[type=checkbox],input[type=checkbox]::after{transition:none}}
+:host{color-scheme:light dark;--text:#182331;--muted:#46576a;--glass:rgba(244,250,255,.49);--card:rgba(255,255,255,.32);--line:rgba(255,255,255,.66);--divider:rgba(51,77,100,.13);--blue:#006bdd;--green:#087643;--amber:#8b5700;--red:#bc2635;font:13px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text)}
+*{box-sizing:border-box}
+section{position:relative;isolation:isolate;width:360px;max-width:calc(100vw - 36px);background:linear-gradient(145deg,rgba(255,255,255,.26),transparent 46%,rgba(177,214,255,.16)),var(--glass);backdrop-filter:blur(28px) saturate(155%);-webkit-backdrop-filter:blur(28px) saturate(155%);border:1px solid var(--line);border-radius:26px;box-shadow:0 22px 64px rgba(14,38,64,.19),0 5px 14px rgba(14,38,64,.08),inset 0 1px 1px rgba(255,255,255,.9),inset 0 -1px 1px rgba(255,255,255,.35);scrollbar-width:thin;scrollbar-color:#7999b366 transparent;animation:glass-arrive .3s ease-out}
+section::before{content:'';position:absolute;z-index:-1;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(ellipse at var(--shine-x,18%) var(--shine-y,0%),rgba(255,255,255,.42),transparent 58%)}
+header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:17px 20px 14px;cursor:grab;touch-action:none;user-select:none}
+header:active{cursor:grabbing}
+header strong{display:flex;align-items:center;font-size:13px;font-weight:650;letter-spacing:-.2px;white-space:nowrap}
+header strong::before{content:'▶';display:inline-grid;place-items:center;width:30px;height:30px;margin-right:10px;border:1px solid #ffffff90;border-radius:11px;background:linear-gradient(145deg,#75ccffb0,#167bf3c9);color:white;font-size:11px;box-shadow:0 3px 9px #007aff22,inset 0 1px 0 #ffffff80}
+button,select,input{font:inherit}
+button{border:1px solid #ffffff70;cursor:pointer;border-radius:12px;padding:8px 12px;transition:background .18s,transform .18s,box-shadow .18s;color:var(--text);background:var(--card);box-shadow:inset 0 1px 0 #ffffff50}
+header button{font-size:11px;color:var(--muted);padding:5px 9px;flex:none}
+button:hover{background:rgba(255,255,255,.5);box-shadow:0 3px 12px #2c60951a}button:active{transform:scale(.97)}
+button:disabled,select:disabled{opacity:.45;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #007aff80;outline-offset:3px}
+main{padding:0 20px 16px}
+p{margin:5px 0;overflow-wrap:anywhere}
+.status-card{border:1px solid #ffffff75;border-radius:19px;background:linear-gradient(135deg,#ffffff35,#ffffff0d),var(--card);box-shadow:inset 0 1px 0 #ffffff60;padding:14px 15px;margin:12px 0 14px}
+.state{font-weight:650;font-size:15px;letter-spacing:-.25px}
+.detail{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.65}
+.meta{color:var(--muted);font-size:11px;line-height:1.65}
+.switch-row,.speed-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:38px;font-weight:550}
+.switch-row{flex-direction:row-reverse;cursor:pointer}.master-row{font-size:13px}
+input[type=checkbox]{appearance:none;-webkit-appearance:none;flex:none;width:40px;height:25px;border-radius:20px;border:1px solid #ffffff65;margin:0;background:rgba(72,94,113,.27);box-shadow:inset 0 1px 3px #24385315;position:relative;cursor:pointer;transition:background .2s}
+input[type=checkbox]::after{content:'';position:absolute;width:21px;height:21px;top:1px;left:1px;border-radius:50%;background:linear-gradient(#fff,#edf6ff);box-shadow:0 1px 5px #1e3f5f35,inset 0 1px 1px #fff;transition:transform .23s cubic-bezier(.2,.8,.2,1)}
+input[type=checkbox]:checked{background:linear-gradient(135deg,#50db8f,#17b976);border-color:#77eeb199}input[type=checkbox]:checked::after{transform:translateX(15px)}
+select{border:1px solid #ffffff80;border-radius:11px;min-width:74px;padding:7px 10px;background:var(--card);color:var(--text);cursor:pointer;box-shadow:inset 0 1px 0 #ffffff55}option{background:#f4f8fc;color:#182331}
+.seek-row{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-top:12px;padding:13px 0;border-top:1px solid var(--divider);border-bottom:1px solid var(--divider)}
+.seek-row>button{color:#fff;background:linear-gradient(145deg,#248cf3df,#0968d9e8);padding:10px 12px;flex:1;white-space:nowrap;box-shadow:0 4px 12px #007aff20,inset 0 1px 0 #ffffff50;text-shadow:0 1px 2px #0048a030}
+.seek-row>button:hover{background:linear-gradient(145deg,#409bff,#0874e9)}
+.seek-row>label{flex:1;min-width:125px;font-size:12px;gap:8px}
+.footer{margin-top:13px}.timestamp{font-size:10px}
+[hidden]{display:none}
+@keyframes glass-arrive{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+@media(prefers-color-scheme:dark){:host{--text:#f2f7ff;--muted:#ccd8e6;--glass:rgba(18,31,48,.58);--card:rgba(225,241,255,.075);--line:rgba(227,241,255,.28);--divider:rgba(210,231,255,.16);--blue:#81baff;--green:#8be9b6;--amber:#ffda8a;--red:#ffa7ad}section{box-shadow:0 22px 64px #0005,inset 0 1px 0 #ffffff45,inset 0 -1px 0 #ffffff15}section::before{opacity:.35}.status-card{border-color:#ffffff28;box-shadow:inset 0 1px 0 #ffffff15;background:var(--card)}button,select{border-color:#ffffff30}button:hover{background:#ffffff22}option{background:#1d3048;color:#f2f7ff}}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){section{background:#edf4fc}@media(prefers-color-scheme:dark){section{background:#1a2b41}}}
+@media(prefers-reduced-transparency:reduce){section{background:#edf4fc}@media(prefers-color-scheme:dark){section{background:#1a2b41}}}
+@media(prefers-reduced-motion:reduce){section{animation:none}button,input[type=checkbox],input[type=checkbox]::after{transition:none}}
         `;
         root.appendChild(style);
         const box = document.createElement('section');
         style.textContent += 'section{resize:both;overflow:auto;min-width:min(260px,calc(100vw - 36px));min-height:64px;max-height:calc(100vh - 12px)}';
         const header = document.createElement('header');
         const title = document.createElement('strong');
-        title.textContent = '学习助手 · 3.3.6';
+        title.textContent = '学习助手 · 3.3.8';
         title.title = '拖动标题移动面板；拖动面板右下角调整大小';
         let drag = null;
         header.addEventListener('pointerdown', event => {
@@ -89,7 +94,7 @@
             host.style.right = 'auto';host.style.bottom = 'auto';
         });
         const endDrag = event => {
-            if (drag?.id === event.pointerId) drag = null;
+            if (drag?.id === event.pointerId) {drag = null;saveLayout();}
         };
         header.addEventListener('pointerup',endDrag);
         header.addEventListener('pointercancel',endDrag);
@@ -98,10 +103,14 @@
         toggle.textContent = '收起';
         toggle.setAttribute('aria-expanded','true');
         const body = document.createElement('main');
+        let expandedHeight = null;
         toggle.addEventListener('click', () => {
+            if (!body.hidden) expandedHeight = box.getBoundingClientRect().height;
             body.hidden = !body.hidden;
+            box.style.height = body.hidden ? 'auto' : (expandedHeight ? expandedHeight + 'px' : 'auto');
             toggle.textContent = body.hidden ? '展开' : '收起';
             toggle.setAttribute('aria-expanded', String(!body.hidden));
+            keepInView();saveLayout();
         });
         header.append(title,toggle);
         const state = document.createElement('p'); state.className = 'state';
@@ -143,6 +152,49 @@
         body.append(enabledLabel,statusCard,speedLabel,seekRow,help,updated);
         box.append(header,body);root.appendChild(box);
         (document.body || document.documentElement).appendChild(host);
+        function keepInView() {
+            const rect = host.getBoundingClientRect();
+            host.style.left = Math.max(0,Math.min(window.innerWidth-rect.width,rect.left)) + 'px';
+            host.style.top = Math.max(0,Math.min(window.innerHeight-rect.height,rect.top)) + 'px';
+            host.style.right = 'auto';host.style.bottom = 'auto';
+        }
+        function saveLayout() {
+            const rect = host.getBoundingClientRect();
+            try {
+                localStorage.setItem('xuexitong-v3-panel-layout',JSON.stringify({x:rect.left,y:rect.top,width:rect.width,height:body.hidden ? expandedHeight : rect.height,collapsed:body.hidden}));
+            } catch (error) {}
+        }
+        try {
+            const layout = JSON.parse(localStorage.getItem('xuexitong-v3-panel-layout') || 'null');
+            if (layout && [layout.x,layout.y,layout.width,layout.height].every(Number.isFinite)) {
+                box.style.width = Math.max(220,Math.min(window.innerWidth-36,layout.width)) + 'px';
+                expandedHeight = Math.max(80,Math.min(window.innerHeight-12,layout.height));
+                body.hidden = layout.collapsed === true;
+                box.style.height = body.hidden ? 'auto' : expandedHeight + 'px';
+                toggle.textContent = body.hidden ? '展开' : '收起';
+                toggle.setAttribute('aria-expanded',String(!body.hidden));
+                host.style.left = Math.max(0,layout.x) + 'px';host.style.top = Math.max(0,layout.y) + 'px';
+                host.style.right = 'auto';host.style.bottom = 'auto';
+                keepInView();
+            }
+        } catch (error) {}
+        let layoutTimer = null;
+        const onResize = () => {keepInView();saveLayout();};
+        window.addEventListener?.('resize',onResize);
+        const resizeObserver = typeof ResizeObserver === 'function' ? new ResizeObserver(() => {
+            keepInView();
+            if (layoutTimer) clearTimeout(layoutTimer);
+            layoutTimer = setTimeout(saveLayout,200);
+        }) : null;
+        resizeObserver?.observe(box);
+        box.addEventListener('pointermove', event => {
+            const rect = box.getBoundingClientRect();
+            box.style.setProperty('--shine-x',Math.round(100*(event.clientX-rect.left)/rect.width)+'%');
+            box.style.setProperty('--shine-y',Math.round(100*(event.clientY-rect.top)/rect.height)+'%');
+        });
+        box.addEventListener('pointerleave',() => {
+            box.style.removeProperty('--shine-x');box.style.removeProperty('--shine-y');
+        });
         let lastTime = null, lastMoved = Date.now(), timer = null, pendingSeek = null;
         const api = {
             set(message, level = 'info') {
@@ -203,7 +255,7 @@
                     app.configs.playbackRate = rate;
                     const video = app._getVideoEl();
                     if (video) {
-                        try {video.playbackRate = rate;}
+                        try {app._rateStates.delete(video);app._applyPreferredRate(video,true);}
                         catch (error) {api.set('播放器未接受倍速设置：' + error.message,'warn');return;}
                     }
                     try {localStorage.setItem('xuexitong-v3-playback-rate',String(rate));} catch (error) {}
@@ -226,7 +278,7 @@
                     const current = Number(video?.currentTime || 0);
                     if (current !== lastTime) {lastTime = current;lastMoved = Date.now();}
                     const format = n => Number.isFinite(n) ? Math.floor(n/60) + ':' + String(Math.floor(n%60)).padStart(2,'0') : '--:--';
-                    progress.textContent = (app.cellData.currentVideoTitle || '等待识别视频') + (video ? ' · ' + format(current) + ' / ' + format(video.duration) + ' · ' + video.playbackRate + '倍速' : '');
+                    progress.textContent = (app.cellData.currentVideoTitle || '等待识别视频') + (video ? ' · ' + format(current) + ' / ' + format(video.duration) + ' · 实际 ' + video.playbackRate + '× / 设置 ' + app.configs.playbackRate + '×' : '');
                     if (!app._enabled) {
                         state.textContent = '● 脚本已关闭';
                         state.style.color = 'var(--muted)';
@@ -238,7 +290,13 @@
                     updated.textContent = '面板刷新：' + new Date().toLocaleTimeString();
                 },1000);
             },
-            destroy() {if(timer) clearInterval(timer);host.remove();}
+            destroy() {
+                if(timer) clearInterval(timer);
+                if(layoutTimer) clearTimeout(layoutTimer);
+                resizeObserver?.disconnect();
+                window.removeEventListener?.('resize',onResize);
+                host.remove();
+            }
         };
         api.set('已加载，等待课程目录');
         return api;
@@ -300,6 +358,30 @@
             _enabled: true,
             _autoLastMinute: false,
             _autoSeeked: new WeakSet(),
+            _rateStates: new WeakMap(),
+            _applyPreferredRate(video, immediate = false) {
+                if (!this._enabled || !video) return;
+                const rate = Number(this.configs.playbackRate);
+                if (![1,1.25,1.5,1.75,2].includes(rate)) return;
+                const source = video.currentSrc || video.src || '';
+                let state = this._rateStates.get(video);
+                if (!state || state.rate !== rate || state.source !== source) {
+                    state = {rate,source,attempts:0,lastAt:0,warned:false};
+                    this._rateStates.set(video,state);
+                }
+                if (Math.abs(video.playbackRate-rate) < 0.01) return;
+                if (state.attempts >= 3) {
+                    if (!state.warned) {
+                        state.warned = true;
+                        statusPanel.set('播放器多次重置倍速，已停止恢复；当前实际 ' + video.playbackRate + '×，设置 ' + rate + '×','warn');
+                    }
+                    return;
+                }
+                if (!immediate && state.attempts && Date.now()-state.lastAt < 1000) return;
+                state.attempts++;state.lastAt = Date.now();
+                try {video.playbackRate = rate;}
+                catch (error) {statusPanel.set('倍速设置失败：' + error.message,'warn');}
+            },
             _applyAutoLastMinute(video) {
                 if (!this._enabled || !this._autoLastMinute || !video || this._autoSeeked.has(video)) return;
                 if (!Number.isFinite(video.duration) || video.duration <= 0) return;
@@ -371,6 +453,8 @@
             run() {
                 if (!this._enabled) return;
                 this._cancelPending();
+                this._clearCheckInterval();
+                this._endedVideo = null;
                 this._detachVideoEvents();
                 this._isPlaying = false;
                 this._tryTimes = 0;
@@ -466,6 +550,12 @@
                 try {
                     const video = this._getVideoEl();
                     if (!video) return;
+                    if (video.ended) {
+                        if (this._isPlaying) this._queueVideoEnd(video);
+                        return;
+                    }
+                    this._videoEventHandle();
+                    this._applyPreferredRate(video);
                     this._applyAutoLastMinute(video);
 
                     if (video.paused && this._isPlaying) {
@@ -491,11 +581,6 @@
                         }
                     }
 
-                    if (video.ended && this._isPlaying) {
-                        logger.log("%c检测到视频结束，准备切换下一个...", "color:#9C27B0");
-                        this._isPlaying = false;
-                        this._schedule(() => this.nextUnit(), 1000);
-                    }
                 } catch (e) {
                     logger.error("视频状态检查失败:", e);
                 }
@@ -542,7 +627,7 @@
                     this._isPlaying = true;
                     this._videoEventHandle();
                     this._applyAutoLastMinute(el);
-                    el.playbackRate = this.configs.playbackRate;
+                    this._applyPreferredRate(el,true);
 
                     try {
                         await el.play();
@@ -698,6 +783,7 @@
             },
             playCurrentIndex(nCell) {
                 if (!this._enabled) return;
+                this._endedVideo = null;
                 this._cancelPending();
                 this._detachVideoEvents();
                 this._clearCheckInterval();
@@ -763,7 +849,7 @@
 
                 this._cellData.nCells = nCellCounts;
 
-                if (!foundCurrent && nCellCounts > 0) {
+                if (!foundCurrent) {
                     throw new Error("未找到当前选中的课程节点，已停止。请手动选择视频后执行 app.run()。");
                 }
 
@@ -850,16 +936,25 @@
                 this._eventVideoEl = null;
                 this._boundVideoHandlers = null;
             },
-            _handleVideoEnded(e) {
-                if (!this._enabled) return;
-                const title = this._cellData.currentVideoTitle;
-                logger.warn(`%c============'${title}' 播放完成=============`, "color:#4CAF50;font-weight:bold");
+            _endedVideo: null,
+            _endedSource: '',
+            _queueVideoEnd(video) {
+                const source = video?.currentSrc || video?.src || '';
+                if (!video || (this._endedVideo === video && this._endedSource === source)) return;
+                this._endedVideo = video;
+                this._endedSource = source;
                 this._isPlaying = false;
                 this._clearCheckInterval();
+                logger.log('视频播放结束，准备切换下一节');
                 this._schedule(() => this.nextUnit(), 1000);
+            },
+            _handleVideoEnded(e) {
+                if (!this._enabled) return;
+                this._queueVideoEnd(e?.target || this._getVideoEl());
             },
             _handleVideoLoaded(e) {
                 if (!this._enabled) return;
+                this._applyPreferredRate(this._getVideoEl(),true);
                 this._applyAutoLastMinute(this._getVideoEl());
                 logger.log(`%c============视频加载完成=============`, "color:#2196F3");
                 if (this.configs.autoplay && !this._isPlaying) {
@@ -876,6 +971,7 @@
                 this._isPlaying = true;
                 this._stepSwitchPending = false;
                 const video = this._getVideoEl();
+                this._applyPreferredRate(video,true);
                 this._guardLastTime = Number(video?.currentTime || 0);
                 this._guardLastWallTs = Date.now();
                 if (this._delayedNextUnitTimer) {
