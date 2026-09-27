@@ -1,6 +1,8 @@
 # 学习通刷课
 
-当前版本：**3.3.6**。
+> 更轻盈，也更清晰。
+
+当前版本：**3.3.8**。
 
 [打开脚本](https://github.com/wwww-start/xuexitong-shuake/blob/main/v3_optimized.user.js) · [安装 / 获取原始脚本](https://raw.githubusercontent.com/wwww-start/xuexitong-shuake/main/v3_optimized.user.js)
 
@@ -12,7 +14,7 @@
 
 ## 功能
 
-- macOS 风格面板，跟随系统浅色 / 深色模式。
+- 液态玻璃风格面板，跟随系统浅色 / 深色模式。
 - 可拖动、调整大小、收起，显示播放状态与进度。
 - 脚本总开关，倍速选择及设置保存。
 - 手动跳到当前视频最后一分钟，或开启后续视频自动跳转。
