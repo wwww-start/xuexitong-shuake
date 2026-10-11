@@ -3,7 +3,7 @@
 // @namespace    local.codex.xuexitong
 // @version      3.3.8
 // @description  自动播放、自动切换下一节，并在页面结构异常时安全停止
-// @author       Codex
+// @author       huiy
 // @match        *://mooc1.chaoxing.com/mycourse/studentstudy*
 // @match        *://*.chaoxing.com/mycourse/studentstudy*
 // @match        *://*.chaoxing.com/mooc2-ans/mycourse/studentstudy*
